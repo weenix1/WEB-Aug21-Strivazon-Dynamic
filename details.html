@@ -17,6 +17,13 @@
     />
 
     <title>Strivazon Shop</title>
+
+    <style>
+      img.img-fluid {
+        height: 30vh;
+        object-fit: cover;
+      }
+    </style>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg navbar-light mb-4">
@@ -68,62 +75,72 @@
       </div>
     </nav>
 
+    <img class="img-fluid w-100" src="./img/photo.jpeg" alt="" />
     <div class="container">
-      <h2>Product details</h2>
-      <div id="row" class="row">
-        <ul id="list" class="list-group no flush"></ul>
+      <div class="row justify-content-center">
+        <div class="col-md-10">
+          <h4 class="mt-5 mb-3">Product Details</h4>
+          <div id="event-details">
+            <div class="spinner-border text-success" role="status">
+              <span class="sr-only">Loading...</span>
+            </div>
+            <!-- GENERATED FROM JS -->
+          </div>
+          <button class="btn btn-success mt-3" onclick="handleEdit()">
+            EDIT EVENT
+          </button>
+        </div>
       </div>
     </div>
 
     <script>
+      const url = "https://striveschool-api.herokuapp.com/api/product/";
       const productId = new URLSearchParams(location.search).get("productId");
       console.log("HERE IS PRODUCT-ID", productId);
 
-      const productData = productId
-        ? "https://striveschool-api.herokuapp.com/api/product/" + productId
-        : "https://striveschool-api.herokuapp.com/api/product/";
-
-        console.log("HERE IS PRODUCT DATA", productData)
-        window.onload = async () => {
-        console.log("PRODUCT ID", productId);
-        if (productId) {
-          const response = await fetch(productData ,{
+      window.onload = async () => {
+        try {
+          const response = await fetch(url + productId, {
             headers: {
-                    "Content-type": "application/json",
-                    Authorization:
-                      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTRiMWQwNjRiYjUzZDAwMTViMTllY2YiLCJpYXQiOjE2MzIzMTI1ODIsImV4cCI6MTYzMzUyMjE4Mn0.tSp1EnE2_Y3RGsIwKu7LMvWNTMZBAt-XyxQPWXlnb60",
-                  },
+              Authorization:
+                "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MTRiMWQwNjRiYjUzZDAwMTViMTllY2YiLCJpYXQiOjE2MzIzMTI1ODIsImV4cCI6MTYzMzUyMjE4Mn0.tSp1EnE2_Y3RGsIwKu7LMvWNTMZBAt-XyxQPWXlnb60",
+            },
           });
-          const productDetails = await response.json();
+          const productObj = await response.json();
 
-          const { name, description, brand, imageUrl, price } = productDetails; // destructing the data
-          console.log(productDetails)
-          document.getElementById("name").value = name;
-          document.getElementById("description").value =description;
-          document.getElementById("brand").value = brand
-          document.getElementById("img").value = imageUrl;
-           parseInt(document.getElementById("price").value)= price;
+          const container = document.querySelector("#event-details");
 
+          const {
+            name,
+            description,
+            price,
+            imageUrl,
+            brand,
+            _id,
+            createdAt,
+            updatedAt,
+          } = productObj; // destructuring ES6
 
-
-
-              const productCard = document.getElementById("row");
-              const li = document.createElement("#list")
-              productCard.innerHTML = `
-                                        <li class="list-group-item"><img src="${imageUrl}" class="img-fluid w-100 h-100"></li>
+          container.innerHTML = `
+                    
+                    <h6 class="bg-light py-3 pl-2">Server Details</h6>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item"><img src="${imageUrl}" class="img-fluid w-100 h-100"></li>
                                         <li class="list-group-item">${name}</li>
                                         <li class="list-group-item">${description}</li>
                                         <li class="list-group-item">${brand}</li>
                                         <li class="list-group-item">${price}€</li>
-                                           `;
-          productCard.appendChild(li)
+                        <li class="list-group-item pl-2"><strong>id:</strong> ${_id}</li>
+                        <li class="list-group-item pl-2"><strong>createdAt:</strong> ${createdAt}</li>
+                        <li class="list-group-item pl-2"><strong>updatedAt:</strong> ${updatedAt}</li>  
+                </ul>`;
+        } catch (err) {
+          console.log(err);
+        }
+      };
 
-          } else {
-            console.log("error here");
-          }
-
-
-
+      const handleEdit = () => {
+        window.location.assign("/backoffice.html?productId=" + productId);
       };
     </script>
 
